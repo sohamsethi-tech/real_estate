@@ -1,0 +1,4 @@
+[
+  { "vaultreId": "FIXTURE-001", "status": "ACTIVE", "listingType": "SALE", "category": "HOUSE", "priceLabel": "Contact Agent", "addressLine": "DEV FIXTURE - not a real address", "suburb": "Richmond", "postcode": "3121", "beds": 3, "baths": 2, "parking": 1, "headline": "DEV FIXTURE listing", "description": "Development placeholder. Not a real property." },
+  { "vaultreId": "FIXTURE-002", "status": "ACTIVE", "listingType": "RENT", "category": "APARTMENT", "priceLabel": "Rental price TBC", "addressLine": "DEV FIXTURE - not a real address", "suburb": "Southbank", "postcode": "3006", "beds": 2, "baths": 1, "parking": 1, "headline": "DEV FIXTURE rental", "description": "Development placeholder. Not a real property." }
+]

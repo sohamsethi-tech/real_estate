@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+*.log
+*.tsbuildinfo
+.pgdata/
+.pgdata-test/
+backend/uploads/
+!backend/uploads/.gitkeep
+.DS_Store

@@ -1,0 +1,353 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  AGENT
+  CONTENT_EDITOR
+  READ_ONLY
+}
+
+enum ListingStatus {
+  ACTIVE
+  UNDER_OFFER
+  SOLD
+  LEASED
+  WITHDRAWN
+  OFF_MARKET
+}
+
+enum ListingType {
+  SALE
+  RENT
+}
+
+enum Category {
+  HOUSE
+  APARTMENT
+  TOWNHOUSE
+  COMMERCIAL
+  INDUSTRIAL
+  LAND
+}
+
+enum DataSource {
+  INTERNAL
+  VAULTRE
+  FIXTURE
+}
+
+enum LeadType {
+  BUY
+  RENT
+  PROPERTY
+  SELL
+  LANDLORD
+  COMMERCIAL
+  GENERAL
+  CONSULTATION
+  INSPECTION
+}
+
+enum LeadStatus {
+  NEW
+  ASSIGNED
+  CONTACTED
+  QUALIFIED
+  INSPECTION_SCHEDULED
+  NEGOTIATION
+  CONVERTED
+  LOST
+}
+
+enum SyncState {
+  PENDING
+  CONFIRMED
+  FAILED
+  NOT_APPLICABLE
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  RESCHEDULE_REQUESTED
+  CANCELLED
+}
+
+enum BookingKind {
+  INSPECTION
+  CONSULTATION
+}
+
+enum ContactMethod {
+  EMAIL
+  PHONE
+  EITHER
+}
+
+enum ImageKind {
+  PHOTO
+  FLOORPLAN
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  SKIPPED
+  FAILED
+}
+
+/// Login account for staff. Public agent profiles live on Agent.
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         Role      @default(AGENT)
+  active       Boolean   @default(true)
+  suburbs      String[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  sessions     Session[]
+  staff        Staff?
+  agent        Agent?
+  assignedLeads Lead[]   @relation("AssignedLeads")
+  auditLogs    AuditLog[]
+}
+
+model Staff {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  position  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+}
+
+/// Public-facing agent profile. Unpublished until the business writes it.
+model Agent {
+  id        String    @id @default(cuid())
+  userId    String?   @unique
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name      String
+  email     String?
+  phone     String?
+  title     String?
+  biography String?
+  photoKey  String?
+  published Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  listings  Listing[]
+  leads     Lead[]
+  bookings  Booking[]
+}
+
+model Listing {
+  id                String         @id @default(cuid())
+  reference         String         @unique
+  vaultreId         String?        @unique
+  source            DataSource     @default(INTERNAL)
+  manuallyEdited    Boolean        @default(false)
+  status            ListingStatus
+  listingType       ListingType
+  category          Category
+  priceLabel        String
+  priceMin          Int?
+  priceMax          Int?
+  addressLine       String
+  suburb            String
+  state             String         @default("VIC")
+  postcode          String
+  beds              Int?
+  baths             Int?
+  parking           Int?
+  landSqm           Float?
+  floorSqm          Float?
+  headline          String
+  description       String
+  lat               Float?
+  lng               Float?
+  showExactLocation Boolean        @default(false)
+  slug              String         @unique
+  featured          Boolean        @default(false)
+  archived          Boolean        @default(false)
+  agentId           String?
+  agent             Agent?         @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  lastSyncedAt      DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  images            ListingImage[]
+  features          ListingFeature[]
+  bookings          Booking[]
+
+  @@index([status, listingType, category])
+  @@index([suburb])
+  @@index([featured])
+}
+
+model ListingImage {
+  id         String    @id @default(cuid())
+  listingId  String
+  listing    Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  sourceRef  String
+  storageKey String?
+  alt        String
+  position   Int
+  kind       ImageKind @default(PHOTO)
+  isPrimary  Boolean   @default(false)
+}
+
+model ListingFeature {
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  label     String
+  position  Int     @default(0)
+}
+
+model Lead {
+  id                   String        @id @default(cuid())
+  reference            String        @unique
+  type                 LeadType
+  status               LeadStatus    @default(NEW)
+  name                 String
+  email                String
+  phone                String
+  message              String?
+  listingId            String?
+  suburb               String?
+  budget               String?
+  preferredContact     ContactMethod @default(EITHER)
+  source               String?
+  campaign             String?
+  marketingConsent     Boolean       @default(false)
+  assignedToId         String?
+  assignedTo           User?         @relation("AssignedLeads", fields: [assignedToId], references: [id])
+  agentId              String?
+  agent                Agent?        @relation(fields: [agentId], references: [id])
+  vaultreSync          SyncState     @default(NOT_APPLICABLE)
+  vaultreSyncAttempts  Int           @default(0)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  events               LeadEvent[]
+
+  @@index([status])
+  @@index([email])
+}
+
+model LeadEvent {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  kind      String
+  detail    String?
+  actorId   String?
+  createdAt DateTime @default(now())
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  reference      String        @unique
+  kind           BookingKind
+  listingId      String?
+  listing        Listing?      @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  agentId        String?
+  agent          Agent?        @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  startsAt       DateTime
+  endsAt         DateTime
+  status         BookingStatus @default(PENDING)
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  message        String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([status])
+  @@index([startsAt])
+}
+
+model SyncRun {
+  id         String    @id @default(cuid())
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  ok         Boolean?
+  upserted   Int       @default(0)
+  error      String?
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id])
+  action    String
+  target    String?
+  detail    String?
+  createdAt DateTime @default(now())
+}
+
+model Testimonial {
+  id         String   @id @default(cuid())
+  reviewer   String
+  body       String
+  reviewDate DateTime
+  suburb     String?
+  sourceNote String?
+  approved   Boolean  @default(false)
+  featured   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  question  String
+  answer    String
+  position  Int      @default(0)
+  published Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+}
+
+model WebsiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  title     String
+  body      String
+  published Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id          String             @id @default(cuid())
+  channel     String
+  toAddress   String
+  subject     String
+  body        String
+  status      NotificationStatus
+  reason      String?
+  relatedType String?
+  relatedId   String?
+  createdAt   DateTime           @default(now())
+  sentAt      DateTime?
+}
