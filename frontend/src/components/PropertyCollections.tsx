@@ -34,7 +34,10 @@ function PropertyRow({ item }: { item: PropertyItem }) {
   const image = getImage(item);
   return (
     <Link className="home-property-card" to={`/property/${encodeURIComponent(item.slug)}`}>
-      {image ? <img src={image} alt={item.image?.alt ?? item.headline} loading="lazy" /> : <div className="home-property-placeholder"><span>Property image not supplied</span></div>}
+      <span className="home-property-media">
+        {image ? <img src={image} alt={item.image?.alt ?? item.headline} loading="lazy" decoding="async" /> : <span className="home-property-placeholder"><span>Property image not supplied</span></span>}
+        {item.status !== "ACTIVE" && <span className="badge">{item.status.replaceAll("_", " ")}</span>}
+      </span>
       <div className="home-property-copy">
         <p className="eyebrow">{item.category.replaceAll("_", " ")} <span>·</span> {item.suburb}</p>
         <h3>{item.headline}</h3>

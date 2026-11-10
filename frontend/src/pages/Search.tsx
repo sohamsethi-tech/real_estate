@@ -146,26 +146,29 @@ export default function Search({ title, type, category, view }: { title: string;
         {!loading && !error && data && data.items.length > 0 && (
           <>
             <div className="results-layout">
-              <ul className="results-list">
-                {data.items.map((item, index) => (
+              <ul className="property-grid">
+                {data.items.map((item, index) => {
+                  const photo = imageUrl(item.image);
+                  return (
                   <li key={item.slug}>
                     <Reveal delay={Math.min(index, 5) * 70}>
-                      <Link className="result-row" to={`/property/${item.slug}`}>
-                        <span className="result-photo">
-                          {imageUrl(item.image) ? <img src={imageUrl(item.image) ?? ""} alt={item.image?.alt ?? ""} loading="lazy" /> : <span>Image not supplied</span>}
+                      <Link className="property-card" to={`/property/${item.slug}`}>
+                        <span className="property-card-media">
+                          {photo ? <img src={photo} alt={item.image?.alt ?? item.headline} loading="lazy" decoding="async" /> : <span className="home-property-placeholder"><span>Image not supplied</span></span>}
+                          <span className="property-card-index">{String((data.page - 1) * data.pageSize + index + 1).padStart(2, "0")}</span>
+                          {item.status !== "ACTIVE" && <span className="badge">{item.status.replaceAll("_", " ")}</span>}
                         </span>
-                        <span className="result-index">{String((data.page - 1) * data.pageSize + index + 1).padStart(2, "0")}</span>
-                        <span className="result-main">
+                        <span className="property-card-copy">
                           <span className="property-meta">{item.category.replaceAll("_", " ")} <span>·</span> {item.suburb}</span>
                           <strong>{item.headline}</strong>
                           <span className="property-features">{item.beds ?? "—"} bedrooms <span>·</span> {item.baths ?? "—"} bathrooms <span>·</span> {item.parking ?? "—"} parking</span>
+                          <span className="property-card-price">{item.priceLabel} <span aria-hidden="true">↗</span></span>
                         </span>
-                        <span className="result-price">{item.priceLabel}{item.status !== "ACTIVE" && <span className="badge">{item.status.replaceAll("_", " ")}</span>}</span>
-                        <span className="property-arrow" aria-hidden="true">↗</span>
                       </Link>
                     </Reveal>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
               <aside className="browse-aside">
                 <img src="/images/courtyard.jpg" alt="Editorial photography of a quiet courtyard and contemporary home" loading="lazy" />

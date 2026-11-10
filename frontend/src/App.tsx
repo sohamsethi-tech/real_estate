@@ -20,6 +20,11 @@ export default function App() {
   const moreMenu = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     setMenuOpen(false);
     moreMenu.current?.removeAttribute("open");
@@ -45,6 +50,29 @@ export default function App() {
       "/ai-disclosure": "AI disclosure | V Group Real Estate",
     };
     document.title = titles[location.pathname] ?? (location.pathname.startsWith("/property/") ? "Property details | V Group Real Estate" : location.pathname.startsWith("/admin") ? "Staff sign in | V Group Real Estate" : "V Group Real Estate | Melbourne and Victoria");
+    const descriptions: Record<string, string> = {
+      "/": "A considered approach to buying, renting and investing in property across Melbourne and Victoria.",
+      "/buy": "Homes for sale with V Group Real Estate across Melbourne and Victoria.",
+      "/rent": "Places to rent with V Group Real Estate across Melbourne and Victoria.",
+      "/commercial": "Commercial property with V Group Real Estate.",
+      "/land": "Land for sale with V Group Real Estate across Melbourne and Victoria.",
+      "/portfolio": "The V Group Real Estate property portfolio.",
+      "/sell": "Sell your property with V Group Real Estate.",
+      "/lease": "Lease your property with V Group Real Estate.",
+      "/about": "About V Group Real Estate, an independent team in Melbourne and Victoria.",
+      "/services": "Property services from V Group Real Estate.",
+      "/team": "The V Group Real Estate team.",
+      "/testimonials": "Client testimonials published by V Group Real Estate.",
+      "/contact": "Contact V Group Real Estate in Melbourne and Victoria.",
+      "/book-inspection": "Request a property inspection with V Group Real Estate.",
+      "/book-consultation": "Request a consultation with V Group Real Estate.",
+    };
+    const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    if (description) description.content = descriptions[location.pathname] ?? "V Group Real Estate. Thoughtful property across Melbourne and Victoria.";
+    const ogTitle = document.querySelector<HTMLMetaElement>('meta[property="og:title"]');
+    if (ogTitle) ogTitle.content = document.title;
+    const ogDescription = document.querySelector<HTMLMetaElement>('meta[property="og:description"]');
+    if (ogDescription && description) ogDescription.content = description.content;
     const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]') ?? document.head.appendChild(Object.assign(document.createElement("link"), { rel: "canonical" }));
     canonical.href = `https://vgrouprealestate.com.au${location.pathname}`;
     const robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]') ?? document.head.appendChild(Object.assign(document.createElement("meta"), { name: "robots" }));
@@ -54,7 +82,7 @@ export default function App() {
   return (
     <>
       <a className="skip" href="#main">Skip to content</a>
-      <header className={`bar${isHome ? " bar-home" : ""}`}>
+      <header className={`bar${isHome ? " bar-home" : ""}${menuOpen ? " menu-is-open" : ""}`}>
         <Link to="/" className="brand" aria-label="V Group Real Estate home">
           <span className="brand-word">V<span className="brand-mark">/</span>GROUP</span>
           <span className="brand-caption">REAL ESTATE · VICTORIA</span>

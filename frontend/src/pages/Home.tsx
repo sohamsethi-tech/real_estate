@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <>
       <section className="hero-screen">
-        <img className="hero-photo" src="/images/victorian-residence.jpg" alt="Editorial photograph of a contemporary Australian residence" />
+        <img className="hero-photo" src="/images/victorian-residence.jpg" alt="Editorial photograph of a contemporary Australian residence" width={2400} height={1592} fetchPriority="high" decoding="async" />
         <div className="hero-shade" />
         <div className="hero-copy">
           <p className="eyebrow eyebrow-light"><span className="eyebrow-line" /> A DIFFERENT PERSPECTIVE ON PROPERTY</p>
@@ -62,7 +62,7 @@ export default function Home() {
 
       <section className="architecture-story">
         <div className="story-photo story-photo-large">
-          <img src="/images/architecture-detail.jpg" alt="Editorial view of a contemporary residence framed by warm timber and glass" loading="lazy" />
+          <img src="/images/architecture-detail.jpg" alt="Editorial view of a contemporary residence framed by warm timber and glass" width={1800} height={1224} loading="lazy" decoding="async" />
           <span className="image-credit">THE ART OF ARRIVING · EDITORIAL</span>
         </div>
         <Reveal className="story-copy">
@@ -73,12 +73,12 @@ export default function Home() {
           <Link className="text-link" to="/buy">Explore homes for sale <span aria-hidden="true">↗</span></Link>
         </Reveal>
         <div className="story-photo story-photo-detail">
-          <img src="/images/courtyard.jpg" alt="Sunlit courtyard opening to a quiet, contemporary home" loading="lazy" />
+          <img src="/images/courtyard.jpg" alt="Sunlit courtyard opening to a quiet, contemporary home" width={1800} height={1200} loading="lazy" decoding="async" />
         </div>
       </section>
 
       <section className="editorial-interlude">
-        <img src="/images/terrace.jpg" alt="Editorial view of a modern home opening onto a leafy terrace" loading="lazy" />
+        <img src="/images/terrace.jpg" alt="Editorial view of a modern home opening onto a leafy terrace" width={1800} height={1200} loading="lazy" decoding="async" />
         <div className="interlude-shade" />
         <Reveal className="interlude-copy">
           <p className="eyebrow eyebrow-light">ROOM TO LIVE YOUR WAY</p>
@@ -105,7 +105,7 @@ export default function Home() {
       <PropertyCollections />
 
       <section className="home-about">
-        <div className="home-about-image"><img src="/images/victorian-residence.jpg" alt="A considered Melbourne residence" loading="lazy" /></div>
+        <div className="home-about-image"><img src="/images/victorian-residence.jpg" alt="A considered Melbourne residence" width={2400} height={1592} loading="lazy" decoding="async" /></div>
         <Reveal className="home-about-copy">
           <p className="eyebrow"><span className="eyebrow-line" /> A DIFFERENT PERSPECTIVE</p>
           <h2>Property is<br /><em>personal.</em></h2>
@@ -122,7 +122,7 @@ export default function Home() {
       </section>
 
       <section className="closing-story">
-        <img src="/images/quiet-interior.jpg" alt="Soft morning light falling across a considered living space" loading="lazy" />
+        <img src="/images/quiet-interior.jpg" alt="Soft morning light falling across a considered living space" width={1800} height={1200} loading="lazy" decoding="async" />
         <Reveal className="closing-copy">
           <span className="eyebrow eyebrow-light">HERE FOR THE WHOLE JOURNEY</span>
           <h2>Let’s find<br />your <em>somewhere.</em></h2>

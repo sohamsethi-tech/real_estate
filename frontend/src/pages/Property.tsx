@@ -106,6 +106,15 @@ export default function Property() {
           </div>
         )}
       </section>
+      {gallery.length > 1 && (
+        <div className="gallery-strip" aria-label="Choose a property photograph">
+          {gallery.map((image, index) => (
+            <button key={`${image.src}-${index}`} type="button" className={index === imageIndex ? "is-current" : ""} aria-label={`Show photo ${index + 1}`} aria-current={index === imageIndex} onClick={() => { setImageIndex(index); setImageFailed(false); }}>
+              <img src={image.src} alt="" loading="lazy" decoding="async" />
+            </button>
+          ))}
+        </div>
+      )}
 
       <section className="property-facts">
         <span><strong>{property.beds ?? "—"}</strong> bedrooms</span>
